@@ -21,15 +21,14 @@ class UserLoginAPIView(APIView):
         if user is not None:
             login(request, user)
 
-            # Generate or retrieve the access and refresh tokens
             refresh = RefreshToken.for_user(user)
             access_token = str(refresh.access_token)
 
             return Response(
                 {
                     'message': 'Login successful',
-                    'access_token': access_token,  # Access token for API authentication
-                    'refresh_token': str(refresh),  # Refresh token for refreshing access token
+                    'access_token': access_token,
+                    'refresh_token': str(refresh),
                 },
                 status=status.HTTP_200_OK
             )
