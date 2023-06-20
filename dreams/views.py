@@ -5,6 +5,8 @@ from rest_framework import status
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.authtoken.models import Token
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from dreams.models import Product, Merchant
 from dreams.serializers import ProductSerializer, MerchantSerializer
@@ -18,7 +20,19 @@ class UserLoginAPIView(APIView):
         user = authenticate(request, username=phone, password=password)
         if user is not None:
             login(request, user)
-            return Response({'message': 'Login successful'}, status=status.HTTP_200_OK)
+
+            # Generate or retrieve the access and refresh tokens
+            refresh = RefreshToken.for_user(user)
+            access_token = str(refresh.access_token)
+
+            return Response(
+                {
+                    'message': 'Login successful',
+                    'access_token': access_token,  # Access token for API authentication
+                    'refresh_token': str(refresh),  # Refresh token for refreshing access token
+                },
+                status=status.HTTP_200_OK
+            )
         else:
             return Response({'message': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
